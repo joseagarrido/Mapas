@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mapas_app/bloc/mapa/mapa_bloc.dart';
 import 'package:mapas_app/bloc/mi_ubicacion/mi_ubicacion_bloc.dart';
@@ -29,9 +30,19 @@ void dispose() {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<MiUbicacionBloc,MiUbicacionState>(
-        builder: (_, state) => crearMapa(state) 
-        ,),
+      body: Stack(
+        children: [
+          BlocBuilder<MiUbicacionBloc,MiUbicacionState>(
+            builder: (_, state) => crearMapa(state) 
+            ,),
+            
+          Positioned(
+            top:10,
+            child: SearchBar()),
+            
+            MarcadorManual(),
+        ],
+      ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children:[
@@ -52,7 +63,9 @@ void dispose() {
       zoom: 15
       );
 
-    return GoogleMap(
+    return BlocBuilder<MapaBloc,MapaState>(
+      builder: (BuildContext context, state) {
+        return GoogleMap(
       initialCameraPosition: cameraPosition,
       myLocationEnabled: true ,
       myLocationButtonEnabled: false,
@@ -62,6 +75,8 @@ void dispose() {
       onCameraMove: (cameraPosition){
         mapaBloc.add(OnMovioMapa(cameraPosition.target));
       },
-    );
+    );},);
+
+    
   }           
 }
